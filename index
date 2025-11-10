@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hefrog Marketplace - Login</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/auth.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-main">
+      <div class="auth-form-container">
+        <!-- SIGN IN -->
+        <div id="signin-container" class="form-wrapper active">
+          <h1>Sign In</h1>
+          <form id="signin-form" class="auth-form">
+            <div class="form-group">
+              <label for="signin-email">Email</label>
+              <div class="input-wrapper">
+                <input id="signin-email" type="email" placeholder="voce@exemplo.com" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signin-password">Senha</label>
+              <div class="input-wrapper">
+                <input id="signin-password" type="password" placeholder="••••••" required />
+                <button class="toggle-password" type="button">👁</button>
+              </div>
+            </div>
+            <div class="form-group checkbox">
+              <input id="remember-me" type="checkbox" />
+              <label for="remember-me">Lembrar-me neste computador</label>
+            </div>
+            <button class="btn-submit" type="submit">SIGN IN</button>
+            <div class="form-footer">
+              <p>Não tem conta? <a class="link-toggle" href="#" data-toggle="signup">Cadastre-se aqui</a></p>
+            </div>
+          </form>
+          <div class="token-display">
+            <p class="token-label">Token JWT Atual:</p>
+            <div id="current-token" class="token-value">Gerando...</div>
+            <p class="token-expiry">Expira em: <span id="token-expiry">--</span>s</p>
+          </div>
+        </div>
+
+        <!-- SIGN UP -->
+        <div id="signup-container" class="form-wrapper hidden">
+          <h1>Sign Up</h1>
+          <p class="signup-subtitle">Crie sua conta para acessar o marketplace.</p>
+          <form id="signup-form" class="auth-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="signup-name">Nome</label>
+                <input id="signup-name" type="text" required />
+              </div>
+              <div class="form-group">
+                <label for="signup-surname">Sobrenome</label>
+                <input id="signup-surname" type="text" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signup-email">Email</label>
+              <input id="signup-email" type="email" required />
+            </div>
+            <div class="form-group">
+              <label for="signup-password">Senha</label>
+              <div class="input-wrapper">
+                <input id="signup-password" type="password" required />
+                <button class="toggle-password" type="button">👁</button>
+              </div>
+            </div>
+            <button class="btn-submit" type="submit">Cadastrar</button>
+            <div class="form-footer">
+              <p>Já tem uma conta? <a class="link-toggle" href="#" data-toggle="signin">Faça o login aqui</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/jwt-handler.js"></script>
+  <script src="./js/auth.js"></script>
+</body>
+</html>
