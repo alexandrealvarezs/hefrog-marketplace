@@ -1,0 +1,9 @@
+
+class ProfileManager{
+  constructor(){ this.user=null; this.jwtHandler=new JWTHandler(); this.init(); }
+  init(){ this.checkAuthentication(); this.loadUserData(); this.setupTabs(); this.jwtHandler.startTokenRefresh(()=>{}); }
+  checkAuthentication(){ const s=localStorage.getItem('hefrog_user'); if(!s){ window.location.href='index.html'; return; } try{ this.user=JSON.parse(s);}catch(e){ window.location.href='index.html'; }}
+  loadUserData(){ if(!this.user) return; document.getElementById('user-initial-large').textContent=this.user.name?.charAt(0).toUpperCase()||'U'; document.getElementById('user-name').textContent=this.user.name||'Usuário'; const email=this.user.email||'user@hefrog.com'; document.getElementById('user-email').textContent=email; const ce=document.getElementById('company-email'); if(ce) ce.textContent=email; }
+  setupTabs(){ const btns=document.querySelectorAll('.tab-btn'); const panes=document.querySelectorAll('.tab-pane'); btns.forEach(b=>b.addEventListener('click',()=>{ btns.forEach(x=>x.classList.remove('active')); panes.forEach(p=>p.classList.remove('active')); b.classList.add('active'); document.getElementById(`${b.dataset.tab}-tab`).classList.add('active'); })); }
+}
+document.addEventListener('DOMContentLoaded',()=>{ window.profileManager=new ProfileManager(); });
