@@ -1,0 +1,31 @@
+
+class AuthManager{
+  constructor(){ this.jwtHandler=new JWTHandler(); this.isAuthenticated=false; this.currentUser=null; this.init(); }
+  init(){ this.setupEventListeners(); this.checkAuthStatus(); }
+  setupEventListeners(){
+    document.querySelectorAll('.link-toggle').forEach(link=>{
+      link.addEventListener('click',e=>{ e.preventDefault(); const t=e.target.dataset.toggle; this.toggleAuthForm(t); });
+    });
+    const signinForm=document.getElementById('signin-form'); if(signinForm){ signinForm.addEventListener('submit',e=>this.handleSignIn(e)); }
+    const signupForm=document.getElementById('signup-form'); if(signupForm){ signupForm.addEventListener('submit',e=>this.handleSignUp(e)); }
+    document.querySelectorAll('.toggle-password').forEach(btn=>{ btn.addEventListener('click',e=>this.togglePasswordVisibility(e)); });
+  }
+  toggleAuthForm(type){ const sin=document.getElementById('signin-container'); const sup=document.getElementById('signup-container'); if(type==='signin'){ sin.classList.remove('hidden'); sup.classList.add('hidden'); } else { sup.classList.remove('hidden'); sin.classList.add('hidden'); } }
+  togglePasswordVisibility(e){ const btn=e.currentTarget; const input=btn.parentElement.querySelector('input'); input.type = input.type==='password'?'text':'password'; }
+  handleSignIn(e){ e.preventDefault(); const email=document.getElementById('signin-email').value.trim(); const password=document.getElementById('signin-password').value; const remember=document.getElementById('remember-me').checked; if(!this.validateEmail(email)){ this.showError('Por favor, insira um email válido'); return;} if(password.length<6){ this.showError('A senha deve ter pelo menos 6 caracteres'); return;} this.authenticateUser(email,password,remember); }
+  handleSignUp(e){ e.preventDefault(); const name=document.getElementById('signup-name').value.trim(); const sur=document.getElementById('signup-surname').value.trim(); const email=document.getElementById('signup-email').value.trim(); const password=document.getElementById('signup-password').value; if(!name||!sur){ this.showError('Por favor, insira nome e sobrenome'); return;} if(!this.validateEmail(email)){ this.showError('Por favor, insira um email válido'); return;} if(password.length<6){ this.showError('A senha deve ter pelo menos 6 caracteres'); return;} this.createAccount(name,sur,email,password); }
+  authenticateUser(email,password,remember){ setTimeout(()=>{ const user={ id:'user_'+Math.random().toString(36).substr(2,9), email, name: email.split('@')[0], role:'buyer', createdAt:new Date().toISOString() };
+    this.jwtHandler.startTokenRefresh(td=>this.updateTokenDisplay(td)); this.isAuthenticated=true; this.currentUser=user; if(remember){ localStorage.setItem('hefrog_user', JSON.stringify(user)); localStorage.setItem('hefrog_remember_me','true'); }
+    this.showSuccess('Login realizado com sucesso!'); setTimeout(()=>{ window.location.href='dashboard.html'; }, 1200);
+  }, 400); }
+  createAccount(name,surname,email,password){ setTimeout(()=>{ const user={ id:'user_'+Math.random().toString(36).substr(2,9), email, name:`${name} ${surname}`, role:'buyer', createdAt:new Date().toISOString() };
+    this.jwtHandler.startTokenRefresh(td=>this.updateTokenDisplay(td)); this.isAuthenticated=true; this.currentUser=user; localStorage.setItem('hefrog_user', JSON.stringify(user)); this.showSuccess('Conta criada com sucesso!'); setTimeout(()=>{ window.location.href='dashboard.html'; }, 1200);
+  }, 400); }
+  updateTokenDisplay(td){ const tokenEl=document.getElementById('current-token'); const expiryEl=document.getElementById('token-expiry'); if(tokenEl) tokenEl.textContent=td.token; if(expiryEl) expiryEl.textContent=td.remainingTime; const int=setInterval(()=>{ const r=this.jwtHandler.getRemainingTime(); if(expiryEl) expiryEl.textContent=r; if(r<=0) clearInterval(int); },1000); }
+  checkAuthStatus(){ const stored=localStorage.getItem('hefrog_user'); const remember=localStorage.getItem('hefrog_remember_me'); if(stored && remember==='true'){ try{ this.currentUser=JSON.parse(stored); this.isAuthenticated=true; this.jwtHandler.startTokenRefresh(td=>this.updateTokenDisplay(td)); }catch(e){ console.error('Erro ao restaurar sessão:', e); this.logout(); } } }
+  logout(){ this.isAuthenticated=false; this.currentUser=null; this.jwtHandler.logout(); localStorage.removeItem('hefrog_user'); localStorage.removeItem('hefrog_remember_me'); window.location.href='index.html'; }
+  validateEmail(email){ return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email); }
+  showError(msg){ const d=document.createElement('div'); d.textContent=msg; d.style.cssText='position:fixed;top:20px;right:20px;background:#e74c3c;color:#fff;padding:12px 18px;border-radius:6px;z-index:10000;animation:slideInRight .3s'; document.body.appendChild(d); setTimeout(()=>{ d.style.animation='slideInLeft .3s reverse'; setTimeout(()=>d.remove(),300); }, 2500); }
+  showSuccess(msg){ const d=document.createElement('div'); d.textContent=msg; d.style.cssText='position:fixed;top:20px;right:20px;background:#27ae60;color:#fff;padding:12px 18px;border-radius:6px;z-index:10000;animation:slideInRight .3s'; document.body.appendChild(d); setTimeout(()=>{ d.style.animation='slideInLeft .3s reverse'; setTimeout(()=>d.remove(),300); }, 2500); }
+}
+document.addEventListener('DOMContentLoaded',()=>{ window.authManager = new AuthManager(); });
