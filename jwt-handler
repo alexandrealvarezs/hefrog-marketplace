@@ -1,0 +1,51 @@
+
+class JWTHandler {
+  constructor(){
+    this.tokenRefreshInterval = 60000; // 1 min
+    this.currentToken = null; this.tokenCreatedAt = null; this.tokenExpiresAt = null;
+    this.tokenUpdateCallback = null; this.refreshIntervalId = null;
+  }
+  generateToken(){
+    const header = { alg:'HS256', typ:'JWT' };
+    const now = Date.now(); const expiresIn = 60;
+    const payload = {
+      iss:'hefrog-marketplace', sub:this.generateRandomUserId(), aud:'hefrog-users',
+      iat: Math.floor(now/1000), exp: Math.floor(now/1000)+expiresIn,
+      username: this.generateRandomUsername(), email: this.generateRandomEmail(), role: this.getRandomRole(),
+      sessionId: this.generateSessionId(), nonce: this.generateNonce()
+    };
+    const signature = this.generateSignature(header, payload);
+    const headerEncoded = this.base64UrlEncode(JSON.stringify(header));
+    const payloadEncoded = this.base64UrlEncode(JSON.stringify(payload));
+    const signatureEncoded = this.base64UrlEncode(signature);
+    const token = `${headerEncoded}.${payloadEncoded}.${signatureEncoded}`;
+    this.currentToken = token; this.tokenCreatedAt = now; this.tokenExpiresAt = now + (expiresIn*1000);
+    this.saveTokenToStorage(token, payload);
+    return token;
+  }
+  startTokenRefresh(callback){
+    this.tokenUpdateCallback = callback;
+    this.generateToken(); this.notifyUpdate();
+    this.refreshIntervalId = setInterval(()=>{ this.generateToken(); this.notifyUpdate(); }, this.tokenRefreshInterval);
+  }
+  stopTokenRefresh(){ if(this.refreshIntervalId){ clearInterval(this.refreshIntervalId); this.refreshIntervalId=null; } }
+  notifyUpdate(){ if(typeof this.tokenUpdateCallback==='function'){ this.tokenUpdateCallback({ token:this.currentToken, createdAt:this.tokenCreatedAt, expiresAt:this.tokenExpiresAt, remainingTime:this.getRemainingTime() }); } }
+  getRemainingTime(){ if(!this.tokenExpiresAt) return 0; return Math.max(0, Math.floor((this.tokenExpiresAt - Date.now())/1000)); }
+  validateToken(token){ try{ const parts = token.split('.'); if(parts.length!==3) return false; const payload = JSON.parse(this.base64UrlDecode(parts[1])); const now = Math.floor(Date.now()/1000); return payload.exp > now; }catch(e){ console.error('Erro ao validar token:', e); return false; } }
+  decodeToken(token){ try{ const parts = token.split('.'); if(parts.length!==3) return null; return JSON.parse(this.base64UrlDecode(parts[1])); }catch(e){ console.error('Erro ao decodificar token:', e); return null; } }
+  base64UrlEncode(str){ return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+  base64UrlDecode(str){ str += '='.repeat(4 - str.length % 4); return atob(str.replace(/-/g,'+').replace(/_/g,'/')); }
+  generateSignature(header,payload){ const data = JSON.stringify(header)+JSON.stringify(payload); let hash=0; for(let i=0;i<data.length;i++){ const c=data.charCodeAt(i); hash=((hash<<5)-hash)+c; hash=hash & hash; } return Math.abs(hash).toString(16); }
+  generateRandomUserId(){ return 'user_'+Math.random().toString(36).substr(2,9); }
+  generateRandomUsername(){ const first=['Alex','Jordan','Casey','Morgan','Riley','Taylor','Quinn','Avery']; const last=['Silva','Santos','Oliveira','Costa','Ferreira','Martins','Alves','Rocha']; const f=first[Math.floor(Math.random()*first.length)]; const l=last[Math.floor(Math.random()*last.length)]; return `${f}${l}${Math.floor(Math.random()*100)}`; }
+  generateRandomEmail(){ const u=this.generateRandomUsername(); const d=['hefrog.com','marketplace.com','trade.com','commerce.io']; const dom=d[Math.floor(Math.random()*d.length)]; return `${u.toLowerCase()}@${dom}`; }
+  getRandomRole(){ const roles=['buyer','seller','admin','moderator','analyst']; return roles[Math.floor(Math.random()*roles.length)]; }
+  generateSessionId(){ return 'session_'+Math.random().toString(36).substr(2,16); }
+  generateNonce(){ return Math.random().toString(36).substr(2,16); }
+  saveTokenToStorage(token,payload){ try{ localStorage.setItem('hefrog_token', token); localStorage.setItem('hefrog_token_payload', JSON.stringify(payload)); localStorage.setItem('hefrog_token_timestamp', Date.now().toString()); }catch(e){ console.warn('Erro ao salvar token:', e); } }
+  getTokenFromStorage(){ try{ return localStorage.getItem('hefrog_token'); }catch(e){ console.warn('Erro ao recuperar token:', e); return null; } }
+  removeTokenFromStorage(){ try{ localStorage.removeItem('hefrog_token'); localStorage.removeItem('hefrog_token_payload'); localStorage.removeItem('hefrog_token_timestamp'); }catch(e){ console.warn('Erro ao remover token:', e); } }
+  getStoredTokenInfo(){ try{ const token=localStorage.getItem('hefrog_token'); const payload=JSON.parse(localStorage.getItem('hefrog_token_payload')||'{}'); const timestamp=parseInt(localStorage.getItem('hefrog_token_timestamp')||'0'); return { token,payload,timestamp,isValid:this.validateToken(token) }; }catch(e){ console.warn('Erro ao obter info do token:', e); return null; } }
+  logout(){ this.stopTokenRefresh(); this.removeTokenFromStorage(); this.currentToken=null; this.tokenCreatedAt=null; this.tokenExpiresAt=null; }
+}
+window.JWTHandler = JWTHandler;
