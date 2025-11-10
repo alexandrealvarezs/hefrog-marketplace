@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hefrog Marketplace - Dashboard</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-sidebar">Hefrog</div>
+        <button class="btn-menu-toggle">☰</button>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-section="painel"><span>Painel</span></button>
+        <button class="nav-item" data-section="analises"><span>Análises De Negócios</span></button>
+
+        <button class="nav-item"><span>Produtos</span><span class="expand-icon" style="margin-left:auto">▾</span></button>
+        <div class="nav-submenu">
+          <button class="nav-subitem" data-section="produtos">Produtos</button>
+          <button class="nav-subitem" data-section="fornecedores">Fabricantes/Fornecedores</button>
+        </div>
+
+        <button class="nav-item"><span>Fornecedor</span><span class="expand-icon" style="margin-left:auto">▾</span></button>
+        <div class="nav-submenu">
+          <button class="nav-subitem" data-section="adicionar-produtos">Adicionar Produtos</button>
+          <button class="nav-subitem" data-section="pedidos">Pedidos</button>
+        </div>
+
+        <button class="nav-item"><span>Contratos</span><span class="expand-icon" style="margin-left:auto">▾</span></button>
+        <div class="nav-submenu">
+          <button class="nav-subitem" data-section="iniciar-contrato">Iniciar Contrato</button>
+          <button class="nav-subitem" data-section="gestao-contratos">Gestão De Contratos</button>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn-logout">⏻ Sair</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <div class="top-navbar">
+        <div class="navbar-left">
+          <button class="btn-menu-mobile" style="background:none;border:none">☰</button>
+          <h2 id="page-title">Painel</h2>
+        </div>
+        <div class="navbar-right">
+          <div class="profile-avatar" style="width:36px;height:36px;border-radius:999px;background:linear-gradient(135deg,#0052CC,#FF6B35);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">
+            <span id="user-initial">U</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-content">
+        <!-- PAINEL -->
+        <div id="section-painel" class="section-view">
+          <div class="stats-section">
+            <div class="stat-card">
+              <div class="stat-label">Vendas Totais</div>
+              <div class="stat-value">200k</div>
+              <div class="stat-change">↑ 12% este mês</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Pedidos Ativos</div>
+              <div class="stat-value">1.245</div>
+              <div class="stat-change">↓ 5% este mês</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Clientes Satisfeitos</div>
+              <div class="stat-value">98%</div>
+              <div class="stat-change">↑ 3% este mês</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Receita Mensal</div>
+              <div class="stat-value">R$ 200k</div>
+              <div class="stat-change">↑ 15% este mês</div>
+            </div>
+          </div>
+
+          <div class="recent-orders">
+            <div class="section-header"><h3>Pedidos Recentes</h3></div>
+            <div class="orders-table-wrapper">
+              <table class="orders-table">
+                <thead>
+                  <tr>
+                    <th>ID do Pedido</th><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>#12345</td><td>João Silva</td><td>Feijão Branco</td><td>R$ 500,00</td><td><span class="badge badge-pending">Pendente</span></td><td>28/10/2025</td></tr>
+                  <tr><td>#12346</td><td>Maria Santos</td><td>Milho</td><td>R$ 750,00</td><td><span class="badge badge-completed">Concluído</span></td><td>27/10/2025</td></tr>
+                  <tr><td>#12347</td><td>Pedro Costa</td><td>Soja</td><td>R$ 1.200,00</td><td><span class="badge badge-processing">Processando</span></td><td>26/10/2025</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section-header"><h3>Produtos em Destaque</h3></div>
+          <div class="products-section">
+            <div class="products-grid">
+              <div class="product-card"><div class="product-image">IMG</div><div class="product-info"><h4>Feijão Branco</h4><p class="product-description">Feijão premium importado</p><div class="product-footer"><div class="product-price">R$ 200,00</div><button class="btn-add-cart">Adicionar</button></div></div></div>
+              <div class="product-card"><div class="product-image">IMG</div><div class="product-info"><h4>Milho</h4><p class="product-description">Milho de alta qualidade</p><div class="product-footer"><div class="product-price">R$ 150,00</div><button class="btn-add-cart">Adicionar</button></div></div></div>
+              <div class="product-card"><div class="product-image">IMG</div><div class="product-info"><h4>Soja</h4><p class="product-description">Soja certificada</p><div class="product-footer"><div class="product-price">R$ 300,00</div><button class="btn-add-cart">Adicionar</button></div></div></div>
+              <div class="product-card"><div class="product-image">IMG</div><div class="product-info"><h4>Arroz Integral</h4><p class="product-description">Arroz orgânico</p><div class="product-footer"><div class="product-price">R$ 180,00</div><button class="btn-add-cart">Adicionar</button></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANALISES -->
+        <div id="section-analises" class="section-view hidden">
+          <div class="section-header">
+            <h3>Simulador de Gráfico</h3>
+            <a id="btn-randomizar-analises" href="#">Randomizar dados</a>
+          </div>
+          <div class="profile-section">
+            <canvas id="salesChart" width="900" height="380"></canvas>
+          </div>
+        </div>
+
+        <!-- PRODUTOS -->
+        <div id="section-produtos" class="section-view hidden">
+          <div class="section-header"><h3>Produtos</h3></div>
+          <div class="products-section"><div id="produtos-grid" class="products-grid"></div></div>
+        </div>
+
+        <!-- FORNECEDORES -->
+        <div id="section-fornecedores" class="section-view hidden">
+          <div class="section-header"><h3>Fabricantes / Fornecedores</h3></div>
+          <div class="profile-section">
+            <div class="product-card" style="padding:0">
+              <div class="product-info" style="padding:20px">
+                <h4 id="forn-nome">AgroNova Ltda.</h4>
+                <p id="forn-desc" class="product-description">Fornecedor certificado de grãos e cereais. Atende todo o território nacional.</p>
+                <div class="product-footer">
+                  <div>
+                    <div><strong>CNPJ:</strong> <span id="forn-cnpj">12.345.678/0001-99</span></div>
+                    <div><strong>Local:</strong> <span id="forn-local">Ribeirão Preto, SP</span></div>
+                    <div><strong>Certificações:</strong> <span id="forn-cert">ISO 22000, Orgânico BR</span></div>
+                    <div><strong>Contato:</strong> <span id="forn-contato">contato@agronova.com.br · (16) 3333-4444</span></div>
+                  </div>
+                  <button class="btn-add-cart">Ver Catálogo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADICIONAR PRODUTOS -->
+        <div id="section-adicionar-produtos" class="section-view hidden">
+          <div class="section-header"><h3>Adicionar Produto (Simulação)</h3></div>
+          <div class="profile-section">
+            <form id="form-add-produto" class="auth-form" autocomplete="off">
+              <div class="form-row">
+                <div class="form-group"><label>Nome do Produto</label><input type="text" id="add-nome" placeholder="Ex.: Feijão Carioca"></div>
+                <div class="form-group"><label>Categoria</label><input type="text" id="add-categoria" placeholder="Grãos"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>Preço (R$)</label><input type="number" id="add-preco" step="0.01" min="0" placeholder="0,00"></div>
+                <div class="form-group"><label>Estoque</label><input type="number" id="add-estoque" min="0" placeholder="0"></div>
+              </div>
+              <div class="form-group"><label>Descrição</label><textarea id="add-descricao" rows="3" placeholder="Breve descrição do produto..."></textarea></div>
+              <button class="btn-submit" type="submit">Adicionar (Simulação)</button>
+            </form>
+          </div>
+          <div class="section-header" style="margin-top: 12px;"><h3>Pré-visualização (itens desta sessão)</h3></div>
+          <div class="products-section"><div id="add-preview-grid" class="products-grid"></div></div>
+        </div>
+
+        <!-- PEDIDOS -->
+        <div id="section-pedidos" class="section-view hidden">
+          <div class="section-header"><h3>Pedidos</h3></div>
+          <div class="recent-orders">
+            <div class="orders-table-wrapper">
+              <table class="orders-table">
+                <thead><tr><th>ID do Pedido</th><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                <tbody id="pedidos-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- INICIAR CONTRATO -->
+        <div id="section-iniciar-contrato" class="section-view hidden">
+          <div class="section-header"><h3>Iniciar Contrato (Simulação)</h3></div>
+          <div class="profile-section">
+            <p><strong>Título:</strong> Contrato de Fornecimento de Grãos</p>
+            <p><strong>Partes:</strong> <span id="contrato-comprador">Hefrog Comprador S/A</span> e <span id="contrato-fornecedor">AgroNova Ltda.</span></p>
+            <p><strong>Objeto:</strong> Fornecimento de 10 toneladas de Soja padrão premium.</p>
+            <p><strong>Vigência:</strong> 01/01/2026 a 30/06/2026</p>
+            <p><strong>Valor:</strong> R$ 150.000,00</p>
+            <p><strong>Cláusulas Resumidas:</strong> qualidade certificada; entrega parcelada; pagamento em D+30; multas por atraso.</p>
+            <button id="btn-assinar-contrato" class="btn-primary" style="margin-top: 12px;">Assinar (Simulação)</button>
+            <p id="assinatura-status" class="text-muted" style="margin-top:8px"></p>
+          </div>
+        </div>
+
+        <!-- GESTÃO DE CONTRATOS -->
+        <div id="section-gestao-contratos" class="section-view hidden">
+          <div class="section-header"><h3>Gestão de Contratos</h3></div>
+          <div class="recent-orders">
+            <div class="orders-table-wrapper">
+              <table class="orders-table">
+                <thead><tr><th>#</th><th>Fornecedor</th><th>Objeto</th><th>Valor</th><th>Status</th><th>Assinado em</th></tr></thead>
+                <tbody id="contratos-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="./js/jwt-handler.js"></script>
+  <script src="./js/dashboard.js"></script>
+</body>
+</html>
