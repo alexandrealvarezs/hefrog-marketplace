@@ -1,0 +1,78 @@
+
+class DashboardManager {
+  constructor() {
+    this.user = null;
+    this.jwtHandler = new JWTHandler();
+    this.sectionInitialized = { painel:true, analises:false, produtos:false, fornecedores:false, 'adicionar-produtos':false, pedidos:false, 'iniciar-contrato':false, 'gestao-contratos':false };
+    this.addPreview = [];
+    this.contratos = [];
+    this.sampleData = this.buildSampleData();
+    this.init();
+  }
+  init(){ this.checkAuthentication(); this.setupEventListeners(); this.loadUserData(); this.initializeTokenRefresh(); this.showSection('painel'); }
+  checkAuthentication(){ const stored=localStorage.getItem('hefrog_user'); if(!stored){ window.location.href='index.html'; return; } try{ this.user=JSON.parse(stored); }catch(e){ console.error('Erro ao recuperar dados:', e); window.location.href='index.html'; } }
+  loadUserData(){ if(!this.user) return; const ui=document.getElementById('user-initial'); if(ui) ui.textContent=(this.user.name||'U').charAt(0).toUpperCase(); }
+  initializeTokenRefresh(){ this.jwtHandler.startTokenRefresh(td=>this.updateTokenStatus(td)); }
+  updateTokenStatus(td){ console.log('Token atualizado:', td.remainingTime, 's'); }
+  setupEventListeners(){
+    const logoutBtn=document.getElementById('logout-btn'); if(logoutBtn){ logoutBtn.addEventListener('click',()=>this.handleLogout()); }
+    const menuToggleMobile=document.querySelector('.btn-menu-mobile'); const menuToggleSidebar=document.querySelector('.btn-menu-toggle'); const sidebar=document.querySelector('.sidebar');
+    if(menuToggleMobile){ menuToggleMobile.addEventListener('click',()=>{ sidebar.classList.toggle('active'); }); }
+    if(menuToggleSidebar){ menuToggleSidebar.addEventListener('click',()=>{ sidebar.classList.toggle('active'); }); }
+    document.addEventListener('click',(e)=>{ if(sidebar && sidebar.classList.contains('active')){ if(!sidebar.contains(e.target) && !menuToggleMobile?.contains(e.target)){ sidebar.classList.remove('active'); } } });
+    this.setupSidebarNavigation();
+    const rand=document.getElementById('btn-randomizar-analises'); if(rand){ rand.addEventListener('click',e=>{ e.preventDefault(); this.renderAnalises(true); }); }
+    const assinarBtn=document.getElementById('btn-assinar-contrato'); if(assinarBtn){ assinarBtn.addEventListener('click',()=>this.simularAssinaturaContrato()); }
+    const formAdd=document.getElementById('form-add-produto'); if(formAdd){ formAdd.addEventListener('submit',(e)=>{ e.preventDefault(); this.simularAdicionarProduto(); }); }
+  }
+  setupSidebarNavigation(){ const items=document.querySelectorAll('.nav-item, .nav-subitem'); items.forEach(item=>{ item.addEventListener('click',(e)=>{
+      const section=item.dataset.section; const hasSub=item.nextElementSibling?.classList?.contains('nav-submenu');
+      if(!section && hasSub){ e.preventDefault(); item.classList.toggle('expanded'); item.nextElementSibling.classList.toggle('active'); return; }
+      if(section){ items.forEach(i=>i.classList.remove('active')); item.classList.add('active'); const t=item.querySelector('span')?.textContent || item.textContent; const te=document.getElementById('page-title'); if(te) te.textContent=t.trim(); this.showSection(section); const sb=document.querySelector('.sidebar'); if(window.innerWidth<=768 && sb){ sb.classList.remove('active'); } }
+    }); }); }
+  showSection(name){ document.querySelectorAll('.section-view').forEach(sec=>sec.classList.add('hidden')); const target=document.getElementById(`section-${name}`); if(target) target.classList.remove('hidden'); if(!this.sectionInitialized[name]){ switch(name){ case 'analises': this.renderAnalises(false); break; case 'produtos': this.renderProdutos(); break; case 'fornecedores': this.renderFornecedores(); break; case 'pedidos': this.renderPedidos(); break; case 'iniciar-contrato': this.renderIniciarContrato(); break; case 'gestao-contratos': this.renderGestaoContratos(); break; } this.sectionInitialized[name]=true; } }
+  buildSampleData(){ const produtos=[
+      { nome:'Feijão Branco', desc:'Feijão premium importado', preco:200 },
+      { nome:'Milho', desc:'Milho amarelo de alta qualidade', preco:150 },
+      { nome:'Soja', desc:'Soja premium certificada', preco:300 },
+      { nome:'Arroz Integral', desc:'Arroz integral orgânico', preco:180 },
+      { nome:'Trigo', desc:'Trigo tipo 1 selecionado', preco:220 },
+      { nome:'Cevada', desc:'Cevada malteada', preco:260 },
+      { nome:'Sorgo', desc:'Sorgo para ração', preco:130 },
+      { nome:'Quinoa', desc:'Quinoa orgânica', preco:420 }
+    ];
+    const pedidos=[
+      { id:'#A1001', cliente:'João Silva', produto:'Feijão Branco', valor:500, status:'Pendente', data:'28/10/2025' },
+      { id:'#A1002', cliente:'Maria Santos', produto:'Milho', valor:750, status:'Concluído', data:'27/10/2025' },
+      { id:'#A1003', cliente:'Pedro Costa', produto:'Soja', valor:1200, status:'Processando', data:'26/10/2025' }
+    ];
+    const contratosBase=[
+      { id:1, fornecedor:'AgroNova Ltda.', objeto:'Fornecimento de Milho (5t)', valor:60000, status:'Ativo', assinadoEm:'05/10/2025' },
+      { id:2, fornecedor:'CerealBrasil S/A', objeto:'Fornecimento de Trigo (8t)', valor:176000, status:'Encerrado', assinadoEm:'15/08/2025' }
+    ];
+    return { produtos, pedidos, contratosBase };
+  }
+  // ===== Renderizações =====
+  renderAnalises(randomize=false){ const canvas=document.getElementById('salesChart'); if(!canvas) return; const ctx=canvas.getContext('2d'); const dados = randomize? Array.from({length:12},()=>Math.floor(50+Math.random()*250)) : [120,130,150,170,160,180,220,210,240,230,260,300]; ctx.clearRect(0,0,canvas.width,canvas.height); const pad={top:30,right:40,bottom:40,left:60}; const w=canvas.width-pad.left-pad.right; const h=canvas.height-pad.top-pad.bottom; const x0=pad.left; const y0=canvas.height-pad.bottom; const max=Math.max(...dados)*1.15; const stepX=w/(dados.length-1);
+    // eixos
+    ctx.strokeStyle='#E0E6ED'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0+w,y0); ctx.moveTo(x0,y0); ctx.lineTo(x0,y0-h); ctx.stroke();
+    // grade
+    ctx.strokeStyle='#F0F3F7'; ctx.fillStyle='#7F8C8D'; ctx.font='12px Segoe UI, Arial'; const linhas=5; for(let i=1;i<=linhas;i++){ const y=y0-(h/linhas)*i; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x0+w,y); ctx.stroke(); const val=Math.round((max/linhas)*i); ctx.fillText(`R$ ${val.toLocaleString('pt-BR')}`, 8, y+4); }
+    // linha
+    ctx.strokeStyle='#0052CC'; ctx.lineWidth=2; ctx.beginPath(); dados.forEach((v,i)=>{ const x=x0+stepX*i; const y=y0-(v/max)*h; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+    // pontos
+    ctx.fillStyle='#FF6B35'; dados.forEach((v,i)=>{ const x=x0+stepX*i; const y=y0-(v/max)*h; ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill(); });
+  }
+  renderProdutos(){ const grid=document.getElementById('produtos-grid'); if(!grid) return; grid.innerHTML = this.sampleData.produtos.map(p=>this.productCardHTML(p.nome,p.desc,p.preco)).join(''); }
+  productCardHTML(nome,desc,preco){ return `<div class="product-card"><div class="product-image">IMG</div><div class="product-info"><h4>${nome}</h4><p class="product-description">${desc}</p><div class="product-footer"><div class="product-price">R$ ${preco.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div><button class="btn-add-cart">Adicionar</button></div></div></div>`; }
+  renderFornecedores(){ /* já preenchido no HTML */ }
+  renderPedidos(){ const tbody=document.getElementById('pedidos-tbody'); if(!tbody) return; tbody.innerHTML = this.sampleData.pedidos.map(p=>`<tr><td>${p.id}</td><td>${p.cliente}</td><td>${p.produto}</td><td>R$ ${p.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${this.statusBadgeHTML(p.status)}</td><td>${p.data}</td></tr>`).join(''); }
+  statusBadgeHTML(st){ const map={ 'Pendente':'badge badge-pending', 'Concluído':'badge badge-completed', 'Processando':'badge badge-processing' }; return `<span class="${map[st]||'badge'}">${st}</span>`; }
+  renderIniciarContrato(){ const comp=document.getElementById('contrato-comprador'); if(comp && this.user?.name){ comp.textContent = `${this.user.name} (Hefrog)`; } }
+  simularAssinaturaContrato(){ const status=document.getElementById('assinatura-status'); const fornecedor=document.getElementById('contrato-fornecedor')?.textContent || 'Fornecedor'; const c={ id:Date.now(), fornecedor, objeto:'Fornecimento de Soja (10t)', valor:150000, status:'Ativo', assinadoEm: new Date().toLocaleDateString('pt-BR') }; this.contratos.push(c); if(status){ status.textContent='Contrato assinado com sucesso (simulação).'; status.classList.remove('text-muted'); status.classList.add('text-primary'); } }
+  renderGestaoContratos(){ const tbody=document.getElementById('contratos-tbody'); if(!tbody) return; const lista=[...this.sampleData.contratosBase, ...this.contratos]; tbody.innerHTML = lista.map((c,idx)=>`<tr><td>${idx+1}</td><td>${c.fornecedor}</td><td>${c.objeto}</td><td>R$ ${c.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${this.statusBadgeHTML(c.status||'Ativo')}</td><td>${c.assinadoEm}</td></tr>`).join(''); }
+  simularAdicionarProduto(){ const nome=document.getElementById('add-nome').value.trim(); const cat=document.getElementById('add-categoria').value.trim(); const preco=parseFloat(document.getElementById('add-preco').value||'0'); const est=parseInt(document.getElementById('add-estoque').value||'0'); const desc=document.getElementById('add-descricao').value.trim(); if(!nome||!cat){ this.toast('Informe nome e categoria.','error'); return; } const novo={nome,categoria:cat,preco:isNaN(preco)?0:preco,estoque:isNaN(est)?0:est,desc: desc||'Sem descrição'}; this.addPreview.unshift(novo); const grid=document.getElementById('add-preview-grid'); if(grid){ grid.innerHTML = this.addPreview.map(p=>this.productCardHTML(`${p.nome} (${p.categoria})`, p.desc, p.preco)).join(''); } ['add-nome','add-categoria','add-preco','add-estoque','add-descricao'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); this.toast('Produto adicionado à pré-visualização (simulação).','success'); }
+  toast(msg,type='success'){ const d=document.createElement('div'); d.textContent=msg; d.style.cssText=`position:fixed;top:20px;right:20px;z-index:10000;padding:12px 18px;border-radius:6px;color:#fff;background:${type==='success'?'#27ae60':'#e74c3c'};box-shadow:0 4px 12px rgba(0,0,0,.15);animation:slideInRight .3s`; document.body.appendChild(d); setTimeout(()=>{ d.style.animation='slideInLeft .3s reverse'; setTimeout(()=>d.remove(),300); }, 2200); }
+  handleLogout(){ if(confirm('Tem certeza que deseja sair?')){ this.jwtHandler.logout(); localStorage.removeItem('hefrog_user'); localStorage.removeItem('hefrog_remember_me'); window.location.href='index.html'; } }
+}
+document.addEventListener('DOMContentLoaded',()=>{ window.dashboardManager = new DashboardManager(); });
